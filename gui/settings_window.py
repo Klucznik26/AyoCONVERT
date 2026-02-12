@@ -20,14 +20,30 @@ class SettingsWindow(QDialog):
         # Język
         layout.addWidget(QLabel(self.tr.get("lbl_lang")))
         self.lang_combo = QComboBox()
-        self.lang_combo.addItems(["Polski", "English", "Українська", "Latviešu", "Lietuvių", "Eesti"])
-        self.lang_combo.setCurrentText(self.config.get("language", "Polski"))
+        
+        # Lista języków z flagami (Unicode)
+        languages = [
+            ("Polski", "🇵🇱"), ("English", "🇬🇧"), ("Українська", "🇺🇦"),
+            ("Latviešu", "🇱🇻"), ("Lietuvių", "🇱🇹"), ("Eesti", "🇪🇪"),
+            ("Português", "🇵🇹"), ("Čeština", "🇨🇿"), ("Slovenščina", "🇸🇮"),
+            ("ქართული", "🇬🇪")
+        ]
+        
+        current_lang = self.config.get("language", "Polski")
+        for lang_name, flag in languages:
+            # Wyświetlamy flagę i nazwę, ale w 'userData' trzymamy czystą nazwę dla configu
+            self.lang_combo.addItem(f"{flag}  {lang_name}", userData=lang_name)
+            
+        index = self.lang_combo.findData(current_lang)
+        if index >= 0:
+            self.lang_combo.setCurrentIndex(index)
+            
         layout.addWidget(self.lang_combo)
 
         # Motyw
         layout.addWidget(QLabel(self.tr.get("lbl_theme")))
         self.theme_combo = QComboBox()
-        self.theme_combo.addItems(["Systemowy", "Ciemny", "Jasny"])
+        self.theme_combo.addItems(["Systemowy", "Ciemny", "Jasny", "Relaksacyjny"])
         self.theme_combo.setCurrentText(self.config.get("theme", "Systemowy"))
         layout.addWidget(self.theme_combo)
 
@@ -52,7 +68,7 @@ class SettingsWindow(QDialog):
         layout.addLayout(btn_layout)
 
     def save_and_close(self):
-        self.config.set("language", self.lang_combo.currentText())
+        self.config.set("language", self.lang_combo.currentData())
         if self.parent() and hasattr(self.parent(), "apply_theme"):
             self.parent().apply_theme(self.theme_combo.currentText())
         self.accept()

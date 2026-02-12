@@ -1,6 +1,8 @@
 {
-    "lbl_title": "Ayo CONVERT",
+    "lbl_title": "AyoCONVERT",
     "btn_open": "Atidaryti vaizdą",
+    "btn_open_dir": "Atidaryti aplanką",
+    "btn_select_source": "Pasirinkite failą arba aplanką",
     "btn_save_dir": "Išsaugojimo katalogas",
     "lbl_format": "Tikslinis formatas:",
     "btn_run": "Vykdyti",
@@ -8,7 +10,7 @@
     "btn_close": "Uždaryti",
     "lbl_drop": "Vilkite ir numeskite failus čia",
     "lbl_status_select_img": "Pasirinkite vaizdą konvertavimui",
-    "lbl_status_select_dir": "Pasirinkite išsaugojimo katalogą",
+    "lbl_status_select_dir": "Pasirinkite tikslinį katalogą",
     "dlg_filter_images": "Vaizdo failai",
     "dlg_filter_all": "Visi failai",
     "settings_title": "Programos nustatymai",
@@ -18,14 +20,14 @@
     "btn_cancel": "Atšaukti",
     "info_title": "Apie Ayo CONVERT",
     "info_name_conv": "Ayo CONVERT v 1.0",
-    "info_desc_conv": "Jūsų asmeninis, greitas vaizdų konvertavimo įrankis. Akimirksniu keiskite vaizdo formatus.",
+    "info_desc_conv": "Jūsų asmeninis, greitas vaizdų konvertavimo įrankis. Keiskite grafinių failų formatus akimirksniu, išlaikydami aukščiausią detalių tikslumą.",
     "info_name_up": "Ayo Up v 1.0",
-    "info_desc_up": "Galingas vaizdo didinimo įrankis, naudojantis neuroninius tinklus nuotraukoms didinti x2 ir x4.",
+    "info_desc_up": "Galingas didinimo įrankis, naudojantis neuroninius tinklus nuotraukoms padidinti x2 ir x4, išryškinantis detales, apie kurių egzistavimą net nenutuokėte.",
     "info_also_available": "Ayo ekosistemoje taip pat rasite:",
     "info_langs": "Palaikomos kalbos",
-    "info_list_langs": "Polski, English, Українська, Latviešu, Lietuvių, Eesti",
+    "info_list_langs": "Polski, English, Українська, Latviešu, Lietuvių, Eesti, Português, Čeština, Slovenščina, ქართული",
     "info_btn_close": "Atgal",
     "lbl_file_name": "Failo pavadinimas",
     "lbl_file_type": "Failo tipas",
-    "lbl_look_in": "Katalogas"
+    "lbl_look_in": "Ieškoti"
 }

@@ -1,23 +1,29 @@
-# AyoCONVERT v 1.0
+# AyoCONVERT v 1.1.0
 
-**AyoCONVERT** is a professional, lightweight image conversion tool built with Python and PySide6. It provides a fast and localized experience for users on Linux distributions such as **Fedora** and **OpenSUSE**].
+**AyoCONVERT** is a professional, lightweight image conversion tool built with Python and PySide6. It provides a fast and localized experience for users on Linux distributions such as **Fedora** and **OpenSUSE**.
 
 ## 🌟 Functionality
 
-* **Sequential Workflow**: The interface guides the user through a strict sequence: Select Image → Select Directory → Execute.
+* **Batch Conversion (NEW)**: Now supports processing multiple files simultaneously, significantly speeding up your workflow.
+* **Relax Mode (NEW)**: A specially designed, dark-themed interface optimized for visual comfort during long sessions.
+* **Drag & Drop (NEW)**: Intuitive file adding by dragging images directly into the main application area.
+* **Sequential Workflow**: The interface guides you through a clear sequence: Select Files → Select Directory → Execute.
 * **Smart Format Lockout**: Automatically disables the source format in the selection list to prevent redundant conversions.
-* **Automated Naming**: Converted files are saved with a mandatory `_AC` suffix (e.g., `image_AC.jpg`) to protect your original files.
-* **Dynamic Status Guidance**: Real-time instructions (e.g., "Select output directory") displayed directly in the UI.
+* **Automated Naming**: Converted files are saved with a mandatory `_AC` suffix to protect your original files.
 
 ## 🌍 Supported Languages
 
-The application features a custom i18n engine and supports the following languages:
+The application features a custom i18n engine with an expanded language set:
 * 🇵🇱 **Polish** (Polski)
 * 🇬🇧 **English**
-* 🇺🇦 **Ukrainian** (Українська - ua)
+* 🇺🇦 **Ukrainian** (Українська)
 * 🇱🇻 **Latvian** (Latviešu)
 * 🇱🇹 **Lithuanian** (Lietuvių)
-* 🇪🇪 **Estonian** (Eesti - ee)
+* 🇪🇪 **Estonian** (Eesti)
+* 🇵🇹 **Portuguese** (Português) **(NEW)**
+* 🇨🇿 **Czech** (Čeština) **(NEW)**
+* 🇸🇮 **Slovenian** (Slovenščina) **(NEW)**
+* 🇬🇪 **Georgian** (ქართული) **(NEW)**
 
 ## 🖼 Supported Formats
 
@@ -34,7 +40,6 @@ AyoCONVERT handles the most popular image formats:
 * **GUI Framework**: PySide6
 * **Image Processing**: Pillow (PIL)
 
----
 
-### ✍️ Author's Note
-This tool was inspired by the high-tech, dystopian world of the novel *Puste Kołyski*. Just like the protagonist Eryk, we value precision in data processing. Stay vigilant and always keep an eye on the **H.F.R.**].
+---
+© 2026 Marek. Visit the project page: [klucznik26.github.io/AyoWWW/](https://klucznik26.github.io/AyoWWW/).

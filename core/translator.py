@@ -1,6 +1,7 @@
 import json
 import os
 from pathlib import Path
+from PySide6.QtCore import QTranslator
 
 class Translator:
     def __init__(self, config):
@@ -13,7 +14,11 @@ class Translator:
             "Українська": "ua",
             "Latviešu": "lv",
             "Lietuvių": "lt",
-            "Eesti": "ee"
+            "Eesti": "ee",
+            "Português": "pt",
+            "Čeština": "cz",
+            "Slovenščina": "si",
+            "ქართული": "ge"
         }
         self.load_translations()
 
@@ -48,3 +53,32 @@ class Translator:
         """Pobiera przetłumaczony tekst dla danego klucza."""
         # Jeśli klucz nie istnieje, zwraca sam klucz (ułatwia szukanie braków w JSON)
         return self.translations.get(key, default if default else key)
+
+class AyoQtTranslator(QTranslator):
+    """
+    Niestandardowy tłumacz Qt, który przechwytuje systemowe frazy (np. nagłówki kolumn)
+    i tłumaczy je używając naszych plików JSON.
+    """
+    def __init__(self, translations_dict):
+        super().__init__()
+        self.translations = translations_dict
+
+    def update_translations(self, translations_dict):
+        self.translations = translations_dict
+
+    def translate(self, context, source_text, disambiguation=None, n=-1):
+        # Mapowanie standardowych tekstów Qt na nasze klucze JSON
+        qt_map = {
+            "Name": "qt_col_name",
+            "Size": "qt_col_size",
+            "Type": "qt_col_type",
+            "Date Modified": "qt_col_date",
+            "Date": "qt_col_date"
+        }
+        
+        if source_text in qt_map:
+            key = qt_map[source_text]
+            if key in self.translations:
+                return self.translations[key]
+        
+        return super().translate(context, source_text, disambiguation, n)

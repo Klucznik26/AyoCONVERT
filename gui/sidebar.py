@@ -1,11 +1,12 @@
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton, 
-                             QComboBox, QLabel)
+                             QComboBox, QLabel, QMenu)
 from PySide6.QtCore import Qt
 
 class Sidebar(QWidget):
     def __init__(self, translator):
         super().__init__()
         self.translator = translator
+        self.setFixedWidth(250) # Stała szerokość panelu niezależnie od języka
         self._init_ui()
 
     def _init_ui(self):
@@ -13,9 +14,14 @@ class Sidebar(QWidget):
         layout.setContentsMargins(10, 0, 10, 0)
         layout.setSpacing(15)
 
-        # 1. Przycisk Otwórz obraz
-        self.btn_open = QPushButton(self.translator.get("btn_open"))
-        self.btn_open.setMinimumHeight(40)
+        # 1. Przycisk wyboru źródła (Menu rozwijane)
+        self.btn_source = QPushButton(self.translator.get("btn_select_source"))
+        self.btn_source.setMinimumHeight(40)
+        
+        self.menu_source = QMenu(self)
+        self.action_open_file = self.menu_source.addAction(self.translator.get("btn_open"))
+        self.action_open_dir = self.menu_source.addAction(self.translator.get("btn_open_dir"))
+        self.btn_source.setMenu(self.menu_source)
 
         # 2. Przycisk Katalog zapisu
         self.btn_save_dir = QPushButton(self.translator.get("btn_save_dir"))
@@ -28,7 +34,7 @@ class Sidebar(QWidget):
         # Złoty kolor Ayo dla lepszej widoczności statusu
         self.lbl_status.setStyleSheet("font-size: 11px; color: #d4a373; font-weight: bold;")
 
-        layout.addWidget(self.btn_open)
+        layout.addWidget(self.btn_source)
         layout.addWidget(self.btn_save_dir)
         layout.addWidget(self.lbl_status)
 
@@ -68,3 +74,6 @@ class Sidebar(QWidget):
         
         # Dodajemy cały poziomy rząd do głównego pionowego układu Sidebaru
         layout.addLayout(bottom_buttons_layout)
+
+        # Podniesienie dolnej sekcji o 5px od dolnej krawędzi
+        layout.addSpacing(5)

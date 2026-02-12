@@ -1,6 +1,8 @@
 {
-    "lbl_title": "Ayo CONVERT",
+    "lbl_title": "AyoCONVERT",
     "btn_open": "Otwórz obraz",
+    "btn_open_dir": "Otwórz folder",
+    "btn_select_source": "Wskaż plik lub folder",
     "btn_save_dir": "Katalog zapisu",
     "lbl_format": "Format docelowy:",
     "btn_run": "Wykonaj",
@@ -23,9 +25,15 @@
     "info_desc_up": "Potężny upscaler wykorzystujący sieci neuronowe do powiększania zdjęć x2 oraz x4, wydobywający detale, o których istnieniu nie miałeś pojęcia.",
     "info_also_available": "W ekosystemie Ayo znajdziesz również:",
     "info_langs": "Wspierane języki",
-    "info_list_langs": "Polski, English, Українська, Latviešu, Lietuvių, Eesti",
+    "info_list_langs": "Polski, English, Українська, Latviešu, Lietuvių, Eesti, Português, Čeština, Slovenščina, ქართული",
     "info_btn_close": "Powrót",
     "lbl_file_name": "Nazwa pliku",
     "lbl_file_type": "Typ pliku",
-    "lbl_look_in": "Szukaj w"
+    "lbl_look_in": "Szukaj w",
+    "lbl_queue_count": "Plików w kolejce:",
+    "lbl_done": "WYKONANO",
+    "qt_col_name": "Nazwa",
+    "qt_col_size": "Rozmiar",
+    "qt_col_type": "Typ",
+    "qt_col_date": "Data modyfikacji"
 }

@@ -26,10 +26,11 @@ class ImageConverter:
         for path in file_paths:
             try:
                 img_path = Path(path)
-                # Sprawdzamy, czy format docelowy jest inny niż źródłowy
-                source_ext = img_path.suffix[1:].upper()
-                if source_ext == target_format.upper():
-                    continue # Pomijamy konwersję na ten sam format
+                
+                # Mapowanie formatu dla Pillow (JPG -> JPEG)
+                pil_format = target_format.upper()
+                if pil_format == "JPG":
+                    pil_format = "JPEG"
 
                 with Image.open(img_path) as img:
                     # Budujemy nową nazwę: nazwa + _AC + nowy format
@@ -38,10 +39,15 @@ class ImageConverter:
                     
                     # Konwersja kolorów (np. przezroczystość PNG na białe tło JPG)
                     final_img = img
-                    if target_format.upper() in ["JPG", "JPEG"] and img.mode in ("RGBA", "P"):
+                    if pil_format == "JPEG" and img.mode in ("RGBA", "P"):
                         final_img = img.convert("RGB")
                     
-                    final_img.save(save_path, target_format.upper(), quality=95)
+                    # Parametry zapisu (quality tylko dla wspieranych formatów)
+                    save_params = {}
+                    if pil_format in ["JPEG", "WEBP"]:
+                        save_params["quality"] = 95
+                        
+                    final_img.save(save_path, pil_format, **save_params)
                     results.append(str(save_path))
             except Exception as e:
                 print(f"[AyoError] Błąd konwersji {path}: {e}")

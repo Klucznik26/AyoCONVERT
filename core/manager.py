@@ -1,6 +1,7 @@
 import json
 import os
 from pathlib import Path
+from typing import Any, Dict, Optional
 
 class ConfigManager:
     def __init__(self):
@@ -21,13 +22,14 @@ class ConfigManager:
         }
         self.settings = self.load_config()
 
-    def load_config(self):
+    def load_config(self) -> Dict[str, Any]:
         """Wczytuje ustawienia z pliku JSON."""
         if self.config_path.exists():
             try:
                 with open(self.config_path, 'r', encoding='utf-8') as f:
                     return {**self.defaults, **json.load(f)}
-            except Exception:
+            except (json.JSONDecodeError, OSError) as e:
+                print(f"[Config] Błąd ładowania pliku konfiguracyjnego: {e}")
                 return self.defaults
         return self.defaults
 
@@ -36,7 +38,7 @@ class ConfigManager:
         with open(self.config_path, 'w', encoding='utf-8') as f:
             json.dump(self.settings, f, indent=4, ensure_ascii=False)
 
-    def get(self, key, default=None):
+    def get(self, key: str, default: Optional[Any] = None) -> Any:
         """
         Naprawiony getter - teraz przyjmuje argument 'default', 
         co rozwiązuje problem TypeError w MainWindow.
@@ -47,6 +49,6 @@ class ConfigManager:
         # Jeśli nie, zwróć przekazany 'default' lub wartość z domyślnych
         return default if default is not None else self.defaults.get(key)
 
-    def set(self, key, value):
+    def set(self, key: str, value: Any):
         self.settings[key] = value
         self.save_config()

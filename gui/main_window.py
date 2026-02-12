@@ -8,9 +8,10 @@ from pathlib import Path
 # Importy komponentów AyoCONVERT
 from .sidebar import Sidebar
 from .drop_area import DropArea
+from .image_fan import ImageFan
 from .styles import get_style
 from .settings_window import SettingsWindow
-from core.translator import Translator
+from core.translator import Translator, AyoQtTranslator
 from core.converter import ImageConverter
 
 class MainWindow(QMainWindow):
@@ -21,17 +22,24 @@ class MainWindow(QMainWindow):
         self.lang_map = lang_map
         self.translator = Translator(self.config)
         
+        # Instalacja naszego tłumacza dla kolumn tabel Qt
+        self.custom_qt_translator = AyoQtTranslator(self.translator.translations)
+        QApplication.instance().installTranslator(self.custom_qt_translator)
+        
         self.converter = ImageConverter(self.config)
         self.current_files = [] 
         
-        # Flaga sesyjna: czy użytkownik potwierdził katalog w tym uruchomieniu?
-        self.dir_selected_session = False 
-        
-        self.setWindowTitle("AyoCONVERT")
-        self.setMinimumSize(1000, 700)
+        self.setWindowTitle("AyoConvert v 1.1.0")
+        self.setMinimumSize(1000, 520)
+        self.resize(1000, 520)
         self.apply_theme(self.config.get("theme", "Systemowy"))
 
         self._init_ui()
+        
+        # Jeśli mamy zapamiętany katalog, ustawiamy tooltip od razu
+        last_dir = self.config.get("last_save_dir")
+        if last_dir:
+            self.sidebar.btn_save_dir.setToolTip(last_dir)
         
     def _init_ui(self):
         """Buduje interfejs i ustawia rygorystyczną sekwencję blokad."""
@@ -46,7 +54,8 @@ class MainWindow(QMainWindow):
 
         # Sidebar - lewy panel sterowania
         self.sidebar = Sidebar(self.translator)
-        self.sidebar.btn_open.clicked.connect(self.open_file_dialog)
+        self.sidebar.action_open_file.triggered.connect(self.open_file_dialog)
+        self.sidebar.action_open_dir.triggered.connect(self.open_source_directory)
         self.sidebar.btn_save_dir.clicked.connect(self.select_save_directory)
         self.sidebar.btn_run.clicked.connect(self.start_conversion)
         self.sidebar.btn_settings.clicked.connect(self.show_settings)
@@ -54,48 +63,79 @@ class MainWindow(QMainWindow):
         
         # Panel prawy
         right_panel = QVBoxLayout()
+        right_panel.setContentsMargins(0, 0, 0, 0)
+        right_panel.setSpacing(15) # Zgodność z odstępami w Sidebarze (15px)
+        
+        # Górny pasek: Tytuł + Wachlarz (Top Right)
+        top_bar = QHBoxLayout()
+        top_bar.setContentsMargins(0, 0, 0, 0)
+        
         title = QLabel(self.translator.get("lbl_title"))
         title.setStyleSheet("font-size: 18px; font-weight: bold;")
         title.setAlignment(Qt.AlignCenter)
+        title.setFixedHeight(40) # Wysokość zgodna z przyciskiem w Sidebarze
+        
+        self.image_fan = ImageFan(self.translator)
+        
+        # Układ: Stretch | Tytuł | Stretch | Wachlarz
+        # Dzięki temu tytuł jest na środku, a wachlarz po prawej, nie spychając tytułu
+        top_bar.addStretch(1)
+        top_bar.addWidget(title)
+        top_bar.addSpacing(240) # Przesunięcie tytułu o 120px w lewo (balansując środek)
+        top_bar.addStretch(1)
 
         content_h = QHBoxLayout()
+        content_h.setContentsMargins(0, 0, 0, 0)
         self.drop_area = DropArea()
         self.drop_area.setText(self.translator.get("lbl_drop"))
         self.drop_area.files_dropped.connect(self.handle_files)
         
         logo_v = QVBoxLayout()
+        self.logo_v_layout = logo_v # Zapisujemy referencję do layoutu
+        
+        # Wachlarz przeniesiony tutaj, aby nie spychał DropArea w dół
+        logo_v.addWidget(self.image_fan, 0, Qt.AlignRight | Qt.AlignTop)
+        
         logo_v.addStretch(1)
         self.mini_logo = QLabel()
         self.load_logo()
-        logo_v.addWidget(self.mini_logo)
+        # Wymuszenie pozycji w prawym dolnym rogu kontenera
+        logo_v.addWidget(self.mini_logo, 0, Qt.AlignRight | Qt.AlignBottom)
 
-        content_h.addWidget(self.drop_area, 1)
+        content_h.addWidget(self.drop_area, 1, Qt.AlignTop)
         content_h.addLayout(logo_v)
 
-        right_panel.addWidget(title)
+        right_panel.addLayout(top_bar)
         right_panel.addLayout(content_h)
 
         main_layout.addWidget(self.sidebar, 1)
         main_layout.addLayout(right_panel, 4)
 
-        # Wymuszenie stanu początkowego przy starcie
-        self.update_ui_state()
+        # Przywrócenie stanu plików (np. po zmianie języka) lub stan początkowy
+        if self.current_files:
+            self.handle_files(self.current_files)
+        else:
+            self.update_ui_state()
 
     def update_ui_state(self):
         """
         Gwarantuje sekwencję:
         1. Brak obrazu -> Napis 'Wybierz obraz', Przycisk zablokowany.
-        2. Obraz wrzucony, brak katalogu w sesji -> Napis 'Wybierz katalog', Przycisk zablokowany.
-        3. Jest obraz i katalog potwierdzony -> Napis znika, Przycisk odblokowany.
+        2. Obraz wrzucony, brak katalogu w configu -> Napis 'Wybierz katalog', Przycisk zablokowany.
+        3. Jest obraz i katalog -> Napis znika, Przycisk odblokowany.
         """
         has_files = len(self.current_files) > 0
+        save_dir = self.config.get("last_save_dir")
+        
+        # Sprawdzamy czy katalog istnieje (mógł zostać usunięty ręcznie przez użytkownika)
+        dir_valid = save_dir and Path(save_dir).exists()
         
         if not has_files:
             # Stan po starcie lub po udanej konwersji
             self.sidebar.lbl_status.setText(self.translator.get("lbl_status_select_img"))
             self.sidebar.btn_run.setEnabled(False)
-        elif not self.dir_selected_session:
-            # Plik jest, ale trzeba kliknąć katalog (wymóg sesji)
+        elif not dir_valid:
+            # Plik jest, ale brak poprawnego katalogu zapisu w ustawieniach
             self.sidebar.lbl_status.setText(self.translator.get("lbl_status_select_dir"))
             self.sidebar.btn_run.setEnabled(False)
         else:
@@ -123,6 +163,11 @@ class MainWindow(QMainWindow):
                 else:
                     self.sidebar.format_choice.model().item(i).setEnabled(True)
             
+            # Aktualizacja wachlarza (pokaże się tylko jeśli > 1 plik)
+            self.image_fan.set_images(file_paths)
+            # Wymuszenie przeliczenia układu paska górnego (gdyby wachlarz się pojawił/zniknął)
+            self.logo_v_layout.activate()
+            
             self.update_ui_state()
 
     def select_save_directory(self):
@@ -142,8 +187,6 @@ class MainWindow(QMainWindow):
                 self.config.set("last_save_dir", save_path)
                 self.sidebar.btn_save_dir.setToolTip(save_path)
                 
-                # Katalog został potwierdzony w tej sesji
-                self.dir_selected_session = True
                 self.update_ui_state()
 
     def _prepare_custom_dialog(self, title, directory, file_filter=None):
@@ -165,10 +208,30 @@ class MainWindow(QMainWindow):
         file_filter = f"{img_label} (*.png *.jpg *.jpeg *.bmp *.webp *.tiff);;{all_label} (*.*)"
         
         dialog = self._prepare_custom_dialog(title, str(Path.home()), file_filter)
+        # Pozwól na wybór wielu plików (Ctrl/Shift)
+        dialog.setFileMode(QFileDialog.FileMode.ExistingFiles)
+        
         if dialog.exec():
             files = dialog.selectedFiles()
             if files:
                 self.handle_files(files)
+
+    def open_source_directory(self):
+        """Wybiera folder i ładuje z niego wszystkie obsługiwane obrazy."""
+        title = self.translator.get("btn_open_dir")
+        dialog = self._prepare_custom_dialog(title, str(Path.home()))
+        dialog.setFileMode(QFileDialog.FileMode.Directory)
+        dialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
+
+        if dialog.exec():
+            selected = dialog.selectedFiles()
+            if selected:
+                folder = Path(selected[0])
+                valid_exts = {'.png', '.jpg', '.jpeg', '.bmp', '.webp', '.tiff'}
+                # Skanowanie folderu (płaskie, bez podkatalogów dla bezpieczeństwa)
+                files = [str(p) for p in folder.iterdir() if p.is_file() and p.suffix.lower() in valid_exts]
+                if files:
+                    self.handle_files(files)
 
     def start_conversion(self):
         """Uruchamia konwersję i czyści interfejs, zachowując pamięć o katalogu."""
@@ -181,7 +244,8 @@ class MainWindow(QMainWindow):
         if success:
             # RESET INTERFEJSU PO KONWERSJI
             self.current_files = [] # Obraz znika z pamięci
-            self.drop_area.setText(self.translator.get("lbl_drop")) # Reset napisu w polu drop
+            self.image_fan.set_images([]) # Reset wachlarza
+            self.drop_area.show_success(self.translator.get("lbl_done", "WYKONANO"))
             
             # Aktualizacja UI - wróci do statusu 'Wybierz obraz', ale flaga sesji zostaje True
             self.update_ui_state()
@@ -191,6 +255,8 @@ class MainWindow(QMainWindow):
         dialog = SettingsWindow(self.config, self.translator, self)
         if dialog.exec():
             self.translator.load_translations()
+            # Aktualizacja tłumaczeń kolumn Qt
+            self.custom_qt_translator.update_translations(self.translator.translations)
             self._init_ui()
 
     def apply_theme(self, theme_name):

@@ -6,6 +6,20 @@ from pathlib import Path
 from core.manager import ConfigManager
 from gui.main_window import MainWindow
 
+# Mapa dostępnych języków (Nazwa wyświetlana -> Kod Qt)
+LANG_MAP = {
+    "Polski": "pl",
+    "English": "en",
+    "Українська": "uk",
+    "Latviešu": "lv",
+    "Lietuvių": "lt",
+    "Eesti": "et",
+    "Português": "pt",
+    "Čeština": "cs",
+    "Slovenščina": "sl",
+    "ქართული": "ka"
+}
+
 def update_qt_translator(app, translator, lang_code):
     """Oficjalny i dynamiczny sposób ładowania tłumaczeń systemowych Qt."""
     # Najpierw usuwamy stary translator, jeśli istnieje
@@ -30,28 +44,18 @@ def main():
     app = QApplication(sys.argv)
     config = ConfigManager()
 
-    # Twoja mapa języków
-    lang_map = {
-        "Polski": "pl",
-        "English": "en",
-        "Українська": "uk",
-        "Latviešu": "lv",
-        "Lietuvių": "lt",
-        "Eesti": "et"
-    }
-
     # Tworzymy jeden globalny obiekt translatora dla Qt
     qt_translator = QTranslator(app)
     
     # Pobieramy obecny język z config.json
     lang_name = config.get("language", "Polski")
-    lang_code = lang_map.get(lang_name, "pl")
+    lang_code = LANG_MAP.get(lang_name, "pl")
 
     # Pierwsze ładowanie przy starcie
     update_qt_translator(app, qt_translator, lang_code)
 
     # Uruchamiamy MainWindow i przekazujemy mu dostęp do aplikacji i translatora
-    window = MainWindow(config, qt_translator, lang_map)
+    window = MainWindow(config, qt_translator, LANG_MAP)
     window.show()
     sys.exit(app.exec())
 

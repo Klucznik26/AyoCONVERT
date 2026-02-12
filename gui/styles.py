@@ -1,24 +1,34 @@
+import json
+from pathlib import Path
+
 def get_style(theme_name="Systemowy"):
-    # Definicje palet kolorystycznych Ayo
-    palettes = {
-        "Systemowy": { # Głęboki granat/tokyonight
-            "bg": "#1a1b26", "widget": "#24283b", "text": "#e0af68", 
-            "border": "#414868", "drag": "#1f2335"
-        },
-        "Jasny": { # Ciepła sepia
-            "bg": "#e4d6c6",   
-            "widget": "#e8dfd2", 
-            "text": "#8c6a48",   
-            "border": "#c0b0a0", 
-            "drag": "#e8dfd2"    
-        },
-        "Ciemny": { # Czekoladowy brąz
-            "bg": "#2b2621", "widget": "#3d352e", "text": "#e0af68", 
-            "border": "#4d443c", "drag": "#3d352e"
-        }
+    # Mapowanie nazw motywów na pliki JSON
+    theme_files = {
+        "Systemowy": "system.json",
+        "Jasny": "light.json",
+        "Ciemny": "dark.json",
+        "Relaksacyjny": "relax.json"
     }
 
-    p = palettes.get(theme_name, palettes["Systemowy"])
+    # Domyślna paleta (fallback - Systemowy)
+    p = {
+        "bg": "#1a1b26", "widget": "#24283b", "text": "#e0af68", 
+        "border": "#414868", "drag": "#1f2335"
+    }
+
+    # Ładowanie z pliku
+    theme_filename = theme_files.get(theme_name, "system.json")
+    theme_path = Path(__file__).resolve().parent.parent / "themes" / theme_filename
+
+    if theme_path.exists():
+        try:
+            with open(theme_path, "r", encoding="utf-8") as f:
+                p = json.load(f)
+        except Exception as e:
+            print(f"[Style] Błąd ładowania motywu {theme_name}: {e}")
+
+    # Dynamiczne zaokrąglenie: średnie (12px) dla Relaksacyjnego, Jasnego i Systemowego, małe (4px) dla reszty
+    radius = "12px" if theme_name in ["Relaksacyjny", "Jasny", "Systemowy"] else "4px"
 
     return f"""
         /* Główne okna */
@@ -38,7 +48,7 @@ def get_style(theme_name="Systemowy"):
             background-color: {p['widget']}; 
             color: {p['text']}; 
             border: 1px solid {p['border']}; 
-            border-radius: 4px; 
+            border-radius: {radius}; 
             padding: 10px; 
         }}
         QPushButton:hover {{ 
@@ -61,7 +71,7 @@ def get_style(theme_name="Systemowy"):
             background-color: {p['widget']}; 
             color: {p['text']}; 
             border: 1px solid {p['border']}; 
-            border-radius: 4px; 
+            border-radius: {radius}; 
             padding: 5px; 
         }}
         
@@ -72,6 +82,19 @@ def get_style(theme_name="Systemowy"):
             selection-background-color: {p['border']};
             border: 1px solid {p['border']};
             outline: none;
+        }}
+        
+        /* Menu rozwijane przycisków */
+        QMenu {{
+            background-color: {p['widget']};
+            color: {p['text']};
+            border: 1px solid {p['border']};
+        }}
+        QMenu::item {{
+            padding: 5px 20px;
+        }}
+        QMenu::item:selected {{
+            background-color: {p['border']};
         }}
         
         /* Pole Drag & Drop */
