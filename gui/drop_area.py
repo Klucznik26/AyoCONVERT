@@ -1,7 +1,8 @@
-from PySide6.QtWidgets import QLabel
-from PySide6.QtGui import QPixmap, QDragEnterEvent, QDropEvent
-from PySide6.QtCore import Qt, Signal
 from pathlib import Path
+
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QDragEnterEvent, QDropEvent, QPixmap
+from PySide6.QtWidgets import QLabel
 
 class DropArea(QLabel):
     # Sygnał wysyłany po upuszczeniu plików
@@ -9,6 +10,7 @@ class DropArea(QLabel):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.error_loading_text = "Image loading error"
         self.setObjectName("DragArea") # Dla stylów CSS
         self.setAlignment(Qt.AlignCenter)
         self.setAcceptDrops(True)
@@ -28,7 +30,10 @@ class DropArea(QLabel):
             )
             self.setPixmap(scaled_pixmap)
         else:
-            self.setText("Błąd ładowania obrazu")
+            self.setText(self.error_loading_text)
+
+    def set_error_loading_text(self, text):
+        self.error_loading_text = text
 
     def show_success(self, text):
         """Wyświetla komunikat o sukcesie w kontrastowym stylu."""

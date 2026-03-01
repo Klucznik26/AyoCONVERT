@@ -1,6 +1,12 @@
-import os
-from PIL import Image
 from pathlib import Path
+
+from PIL import Image
+
+from .logger import get_logger
+
+
+logger = get_logger(__name__)
+
 
 class ImageConverter:
     def __init__(self, config):
@@ -50,6 +56,6 @@ class ImageConverter:
                     final_img.save(save_path, pil_format, **save_params)
                     results.append(str(save_path))
             except Exception as e:
-                print(f"[AyoError] Błąd konwersji {path}: {e}")
+                logger.error("Błąd konwersji %s: %s", path, e)
                 
         return True, results

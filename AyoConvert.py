@@ -1,46 +1,23 @@
+import logging
 import sys
+
+from PySide6.QtCore import QTranslator
 from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import QTranslator, QLibraryInfo
-from pathlib import Path
 
+from core.app_config import DEFAULT_LANGUAGE, LANG_MAP
+from core.controller import MainController
+from core.converter import ImageConverter
 from core.manager import ConfigManager
+from core.translator import ensure_translation_files
 from gui.main_window import MainWindow
-
-# Mapa dostępnych języków (Nazwa wyświetlana -> Kod Qt)
-LANG_MAP = {
-    "Polski": "pl",
-    "English": "en",
-    "Українська": "uk",
-    "Latviešu": "lv",
-    "Lietuvių": "lt",
-    "Eesti": "et",
-    "Português": "pt",
-    "Čeština": "cs",
-    "Slovenščina": "sl",
-    "ქართული": "ka"
-}
-
-def update_qt_translator(app, translator, lang_code):
-    """Oficjalny i dynamiczny sposób ładowania tłumaczeń systemowych Qt."""
-    # Najpierw usuwamy stary translator, jeśli istnieje
-    app.removeTranslator(translator)
-    
-    # Znajdujemy ścieżkę do plików .qm w Twoim venv
-    qt_translations_path = QLibraryInfo.path(QLibraryInfo.TranslationsPath)
-    
-    # Próbujemy załadować odpowiedni plik (np. qtbase_lt.qm)
-    if translator.load(f"qtbase_{lang_code}.qm", qt_translations_path):
-        app.installTranslator(translator)
-        print(f"[Qt] Załadowano tłumaczenie systemowe dla: {lang_code}")
-    else:
-        # Fallback na ogólny plik qt_*.qm
-        if translator.load(f"qt_{lang_code}.qm", qt_translations_path):
-            app.installTranslator(translator)
-            print(f"[Qt] Załadowano zbiorcze tłumaczenie: {lang_code}")
-        else:
-            print(f"[Qt] Brak systemowego pliku .qm dla: {lang_code}")
+from gui.qt_i18n import update_qt_translator
 
 def main():
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+    
+    # Sprawdzenie i ewentualne utworzenie brakujących plików językowych
+    ensure_translation_files()
+    
     app = QApplication(sys.argv)
     config = ConfigManager()
 
@@ -48,14 +25,21 @@ def main():
     qt_translator = QTranslator(app)
     
     # Pobieramy obecny język z config.json
-    lang_name = config.get("language", "Polski")
+    lang_name = config.get("language", DEFAULT_LANGUAGE)
     lang_code = LANG_MAP.get(lang_name, "pl")
 
     # Pierwsze ładowanie przy starcie
     update_qt_translator(app, qt_translator, lang_code)
 
+    # Inicjalizacja logiki biznesowej
+    converter = ImageConverter(config)
+
     # Uruchamiamy MainWindow i przekazujemy mu dostęp do aplikacji i translatora
-    window = MainWindow(config, qt_translator, LANG_MAP)
+    window = MainWindow(config, qt_translator)
+    
+    # Spinamy Widok z Logiką za pomocą Kontrolera
+    _controller = MainController(window, config, converter)
+    
     window.show()
     sys.exit(app.exec())
 

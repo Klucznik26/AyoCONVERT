@@ -29,10 +29,9 @@ class Sidebar(QWidget):
 
         # 3. Etykieta statusu (dynamiczne podpowiedzi)
         self.lbl_status = QLabel("")
+        self.lbl_status.setObjectName("statusLabel")
         self.lbl_status.setAlignment(Qt.AlignCenter)
         self.lbl_status.setWordWrap(True)
-        # Złoty kolor Ayo dla lepszej widoczności statusu
-        self.lbl_status.setStyleSheet("font-size: 11px; color: #d4a373; font-weight: bold;")
 
         layout.addWidget(self.btn_source)
         layout.addWidget(self.btn_save_dir)

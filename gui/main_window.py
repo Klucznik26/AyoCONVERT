@@ -1,8 +1,7 @@
-import os
 from PySide6.QtWidgets import (QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, 
-                             QLabel, QFileDialog, QApplication)
+                             QLabel, QApplication)
 from PySide6.QtGui import QPixmap
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from pathlib import Path
 
 # Importy komponentów AyoCONVERT
@@ -11,28 +10,31 @@ from .drop_area import DropArea
 from .image_fan import ImageFan
 from .styles import get_style
 from .settings_window import SettingsWindow
-from core.translator import Translator, AyoQtTranslator
-from core.converter import ImageConverter
+from core.translator import Translator
+from .qt_i18n import AyoQtTranslator
+from . import dialogs
 
 class MainWindow(QMainWindow):
-    def __init__(self, config, qt_translator, lang_map):
+    # Sygnały do komunikacji z Kontrolerem
+    files_dropped_signal = Signal(list)
+    dir_selected_signal = Signal(str)
+    conversion_requested_signal = Signal(str)
+
+    def __init__(self, config, qt_translator):
         super().__init__()
         self.config = config
         self.qt_translator = qt_translator
-        self.lang_map = lang_map
         self.translator = Translator(self.config)
+        self._status_message_key = ""
         
         # Instalacja naszego tłumacza dla kolumn tabel Qt
         self.custom_qt_translator = AyoQtTranslator(self.translator.translations)
         QApplication.instance().installTranslator(self.custom_qt_translator)
         
-        self.converter = ImageConverter(self.config)
-        self.current_files = [] 
-        
-        self.setWindowTitle("AyoConvert v 1.1.0")
+        self.setWindowTitle("AyoConvert v 1.3.0")
         self.setMinimumSize(1000, 520)
         self.resize(1000, 520)
-        self.apply_theme(self.config.get("theme", "Systemowy"))
+        self.apply_theme(self.config.get("theme", "system"))
 
         self._init_ui()
         
@@ -54,6 +56,7 @@ class MainWindow(QMainWindow):
 
         # Sidebar - lewy panel sterowania
         self.sidebar = Sidebar(self.translator)
+        self.sidebar.lbl_status.setObjectName("statusLabel")
         self.sidebar.action_open_file.triggered.connect(self.open_file_dialog)
         self.sidebar.action_open_dir.triggered.connect(self.open_source_directory)
         self.sidebar.btn_save_dir.clicked.connect(self.select_save_directory)
@@ -87,6 +90,7 @@ class MainWindow(QMainWindow):
         content_h = QHBoxLayout()
         content_h.setContentsMargins(0, 0, 0, 0)
         self.drop_area = DropArea()
+        self.drop_area.setObjectName("dropArea") # ID dla stylów CSS
         self.drop_area.setText(self.translator.get("lbl_drop"))
         self.drop_area.files_dropped.connect(self.handle_files)
         
@@ -111,145 +115,94 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.sidebar, 1)
         main_layout.addLayout(right_panel, 4)
 
-        # Przywrócenie stanu plików (np. po zmianie języka) lub stan początkowy
-        if self.current_files:
-            self.handle_files(self.current_files)
+        # Po przebudowie UI (np. po zmianie języka) odtwarzamy aktualny status.
+        if self._status_message_key:
+            self.sidebar.lbl_status.setText(self.translator.get(self._status_message_key))
         else:
-            self.update_ui_state()
-
-    def update_ui_state(self):
-        """
-        Gwarantuje sekwencję:
-        1. Brak obrazu -> Napis 'Wybierz obraz', Przycisk zablokowany.
-        2. Obraz wrzucony, brak katalogu w configu -> Napis 'Wybierz katalog', Przycisk zablokowany.
-        3. Jest obraz i katalog -> Napis znika, Przycisk odblokowany.
-        """
-        has_files = len(self.current_files) > 0
-        save_dir = self.config.get("last_save_dir")
-        
-        # Sprawdzamy czy katalog istnieje (mógł zostać usunięty ręcznie przez użytkownika)
-        dir_valid = save_dir and Path(save_dir).exists()
-        
-        if not has_files:
-            # Stan po starcie lub po udanej konwersji
-            self.sidebar.lbl_status.setText(self.translator.get("lbl_status_select_img"))
-            self.sidebar.btn_run.setEnabled(False)
-        elif not dir_valid:
-            # Plik jest, ale brak poprawnego katalogu zapisu w ustawieniach
-            self.sidebar.lbl_status.setText(self.translator.get("lbl_status_select_dir"))
-            self.sidebar.btn_run.setEnabled(False)
-        else:
-            # Wszystko gotowe - napisy znikają
             self.sidebar.lbl_status.setText("")
-            self.sidebar.btn_run.setEnabled(True)
+
+    # --- Rejestracja callbacków dla warstwy logiki (bez zależności od Qt) ---
+
+    def bind_on_files_dropped(self, handler):
+        self.files_dropped_signal.connect(handler)
+
+    def bind_on_dir_selected(self, handler):
+        self.dir_selected_signal.connect(handler)
+
+    def bind_on_conversion_requested(self, handler):
+        self.conversion_requested_signal.connect(handler)
+
+    # --- Metody wywoływane przez Kontroler (API Widoku) ---
+
+    def show_preview(self, file_path):
+        self.drop_area.set_preview(file_path)
+
+    def update_fan(self, file_paths):
+        self.image_fan.set_images(file_paths)
+        self.logo_v_layout.activate()
+
+    def update_save_dir_tooltip(self, path):
+        self.sidebar.btn_save_dir.setToolTip(path)
+
+    def set_status_message(self, key_msg):
+        """Ustawia tekst statusu na podstawie klucza tłumaczenia lub czyści."""
+        self._status_message_key = key_msg or ""
+        if not key_msg:
+            self.sidebar.lbl_status.setText("")
+        else:
+            self.sidebar.lbl_status.setText(self.translator.get(key_msg))
+
+    def set_run_enabled(self, enabled):
+        self.sidebar.btn_run.setEnabled(enabled)
+
+    def show_success_message(self):
+        self.drop_area.show_success(self.translator.get("lbl_done", "WYKONANO"))
+
+    def reset_after_conversion(self):
+        self.image_fan.set_images([])
+
+    def update_format_availability(self, source_ext):
+        """Blokuje format źródłowy na liście wyboru."""
+        for i in range(self.sidebar.format_choice.count()):
+            format_item = self.sidebar.format_choice.itemText(i)
+            if format_item == source_ext:
+                self.sidebar.format_choice.model().item(i).setEnabled(False)
+                if self.sidebar.format_choice.currentIndex() == i:
+                    next_idx = (i + 1) % self.sidebar.format_choice.count()
+                    self.sidebar.format_choice.setCurrentIndex(next_idx)
+            else:
+                self.sidebar.format_choice.model().item(i).setEnabled(True)
+
+    # --- Obsługa zdarzeń UI (Emitowanie sygnałów) ---
 
     def handle_files(self, file_paths):
-        """Obsługuje nowe pliki i inteligentnie blokuje format źródłowy."""
+        """Przekazuje pliki do kontrolera."""
         if file_paths:
-            self.current_files = file_paths
-            self.drop_area.set_preview(file_paths[0])
-            
-            # Wygaszanie formatu źródłowego
-            source_ext = Path(file_paths[0]).suffix[1:].upper()
-            if source_ext == "JPEG": source_ext = "JPG"
-            
-            for i in range(self.sidebar.format_choice.count()):
-                format_item = self.sidebar.format_choice.itemText(i)
-                if format_item == source_ext:
-                    self.sidebar.format_choice.model().item(i).setEnabled(False)
-                    if self.sidebar.format_choice.currentIndex() == i:
-                        next_idx = (i + 1) % self.sidebar.format_choice.count()
-                        self.sidebar.format_choice.setCurrentIndex(next_idx)
-                else:
-                    self.sidebar.format_choice.model().item(i).setEnabled(True)
-            
-            # Aktualizacja wachlarza (pokaże się tylko jeśli > 1 plik)
-            self.image_fan.set_images(file_paths)
-            # Wymuszenie przeliczenia układu paska górnego (gdyby wachlarz się pojawił/zniknął)
-            self.logo_v_layout.activate()
-            
-            self.update_ui_state()
+            self.files_dropped_signal.emit(file_paths)
 
     def select_save_directory(self):
-        """Otwiera okno wyboru folderu i odblokowuje flagę sesyjną."""
-        title = self.translator.get("btn_save_dir")
+        """Używa helpera dialogs do wyboru katalogu."""
         last_dir = self.config.get("last_save_dir", str(Path.home()))
-        
-        dialog = self._prepare_custom_dialog(title, last_dir)
-        dialog.setFileMode(QFileDialog.FileMode.Directory)
-        dialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
-        dialog.setLabelText(QFileDialog.Accept, self.translator.get("btn_save"))
-        
-        if dialog.exec():
-            selected = dialog.selectedFiles()
-            if selected:
-                save_path = selected[0]
-                self.config.set("last_save_dir", save_path)
-                self.sidebar.btn_save_dir.setToolTip(save_path)
-                
-                self.update_ui_state()
-
-    def _prepare_custom_dialog(self, title, directory, file_filter=None):
-        dialog = QFileDialog(self, title, directory)
-        dialog.setOption(QFileDialog.Option.DontUseNativeDialog, True)
-        if file_filter:
-            dialog.setNameFilter(file_filter)
-        dialog.setLabelText(QFileDialog.Accept, self.translator.get("btn_open") if file_filter else self.translator.get("btn_save"))
-        dialog.setLabelText(QFileDialog.Reject, self.translator.get("btn_cancel"))
-        dialog.setLabelText(QFileDialog.FileName, self.translator.get("lbl_file_name"))
-        dialog.setLabelText(QFileDialog.FileType, self.translator.get("lbl_file_type"))
-        dialog.setLabelText(QFileDialog.LookIn, self.translator.get("lbl_look_in"))
-        return dialog
+        save_path = dialogs.select_save_directory(self, self.translator, last_dir)
+        if save_path:
+            self.dir_selected_signal.emit(save_path)
 
     def open_file_dialog(self):
-        title = self.translator.get("btn_open")
-        img_label = self.translator.get("dlg_filter_images")
-        all_label = self.translator.get("dlg_filter_all")
-        file_filter = f"{img_label} (*.png *.jpg *.jpeg *.bmp *.webp *.tiff);;{all_label} (*.*)"
-        
-        dialog = self._prepare_custom_dialog(title, str(Path.home()), file_filter)
-        # Pozwól na wybór wielu plików (Ctrl/Shift)
-        dialog.setFileMode(QFileDialog.FileMode.ExistingFiles)
-        
-        if dialog.exec():
-            files = dialog.selectedFiles()
-            if files:
-                self.handle_files(files)
+        """Używa helpera dialogs do wyboru plików."""
+        files = dialogs.open_files_dialog(self, self.translator, str(Path.home()))
+        if files:
+            self.handle_files(files)
 
     def open_source_directory(self):
-        """Wybiera folder i ładuje z niego wszystkie obsługiwane obrazy."""
-        title = self.translator.get("btn_open_dir")
-        dialog = self._prepare_custom_dialog(title, str(Path.home()))
-        dialog.setFileMode(QFileDialog.FileMode.Directory)
-        dialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
-
-        if dialog.exec():
-            selected = dialog.selectedFiles()
-            if selected:
-                folder = Path(selected[0])
-                valid_exts = {'.png', '.jpg', '.jpeg', '.bmp', '.webp', '.tiff'}
-                # Skanowanie folderu (płaskie, bez podkatalogów dla bezpieczeństwa)
-                files = [str(p) for p in folder.iterdir() if p.is_file() and p.suffix.lower() in valid_exts]
-                if files:
-                    self.handle_files(files)
+        """Używa helpera dialogs do skanowania folderu."""
+        files = dialogs.open_directory_scan(self, self.translator, str(Path.home()))
+        if files:
+            self.handle_files(files)
 
     def start_conversion(self):
-        """Uruchamia konwersję i czyści interfejs, zachowując pamięć o katalogu."""
-        if not self.current_files:
-            return
-            
+        """Zgłasza chęć konwersji."""
         target_format = self.sidebar.format_choice.currentText()
-        success, results = self.converter.convert(self.current_files, target_format)
-        
-        if success:
-            # RESET INTERFEJSU PO KONWERSJI
-            self.current_files = [] # Obraz znika z pamięci
-            self.image_fan.set_images([]) # Reset wachlarza
-            self.drop_area.show_success(self.translator.get("lbl_done", "WYKONANO"))
-            
-            # Aktualizacja UI - wróci do statusu 'Wybierz obraz', ale flaga sesji zostaje True
-            self.update_ui_state()
-            print(f"Konwersja zakończona. Pliki w: {self.config.get('last_save_dir')}")
+        self.conversion_requested_signal.emit(target_format)
 
     def show_settings(self):
         dialog = SettingsWindow(self.config, self.translator, self)
@@ -265,7 +218,8 @@ class MainWindow(QMainWindow):
         self.config.set("theme", theme_name)
 
     def load_logo(self):
-        path = Path(__file__).resolve().parent.parent / "assets" / "AyoCONVERT.png"
+        root_path = Path(__file__).resolve().parent.parent
+        path = root_path / "assets" / "AyoCONVERT.png"
         if path.exists():
             pix = QPixmap(str(path))
             self.mini_logo.setPixmap(pix.scaled(180, 180, Qt.KeepAspectRatio, Qt.SmoothTransformation))

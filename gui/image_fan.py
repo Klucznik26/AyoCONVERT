@@ -2,7 +2,7 @@ import random
 from pathlib import Path
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
 from PySide6.QtGui import QPainter, QPixmap, QColor, QPen
-from PySide6.QtCore import Qt, QPoint
+from PySide6.QtCore import Qt
 
 class FanCanvas(QWidget):
     """Widget odpowiedzialny wyłącznie za rysowanie wachlarza kart."""

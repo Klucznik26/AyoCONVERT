@@ -1,25 +1,24 @@
 import json
-import os
-from pathlib import Path
 from typing import Any, Dict, Optional
+
+from .app_config import CONFIG_DIR, CONFIG_PATH, DEFAULT_SETTINGS
+from .logger import get_logger
+
+
+logger = get_logger(__name__)
+
 
 class ConfigManager:
     def __init__(self):
-        # Ścieżka do pliku ustawień (cross-platform)
-        self.config_dir = Path(__file__).resolve().parent.parent / "config"
-        self.config_path = self.config_dir / "config.json"
+        self.config_dir = CONFIG_DIR
+        self.config_path = CONFIG_PATH
         
         # Upewnij się, że katalog 'config' istnieje
         if not self.config_dir.exists():
             self.config_dir.mkdir(parents=True, exist_ok=True)
         
         # Domyślne ustawienia (zgodnie z Ayo-UP)
-        self.defaults = {
-            "language": "Polski",
-            "theme": "Systemowy",
-            "last_format": "png",
-            "output_suffix": "_AOC" # Ayo Convert
-        }
+        self.defaults = DEFAULT_SETTINGS.copy()
         self.settings = self.load_config()
 
     def load_config(self) -> Dict[str, Any]:
@@ -29,7 +28,7 @@ class ConfigManager:
                 with open(self.config_path, 'r', encoding='utf-8') as f:
                     return {**self.defaults, **json.load(f)}
             except (json.JSONDecodeError, OSError) as e:
-                print(f"[Config] Błąd ładowania pliku konfiguracyjnego: {e}")
+                logger.error("[config] Błąd ładowania pliku konfiguracyjnego: %s", e)
                 return self.defaults
         return self.defaults
 

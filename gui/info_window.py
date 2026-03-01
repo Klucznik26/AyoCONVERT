@@ -1,7 +1,8 @@
-from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QWidget
-from PySide6.QtGui import QPixmap
-from PySide6.QtCore import Qt
 from pathlib import Path
+
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QWidget
 
 class InfoWindow(QDialog):
     def __init__(self, translator, parent=None):
@@ -53,8 +54,8 @@ class InfoWindow(QDialog):
             d_lbl.setWordWrap(True)
             c_layout.addWidget(d_lbl)
 
-        add_info("Ayo CONVERT v 1.0", "info_desc_conv")
-        add_info("Ayo Up v 1.0", "info_desc_up", is_sub=True)
+        add_info(self.tr.get("info_name_conv"), "info_desc_conv")
+        add_info(self.tr.get("info_name_up"), "info_desc_up", is_sub=True)
 
         layout.addWidget(content)
         layout.addStretch()
@@ -69,7 +70,8 @@ class InfoWindow(QDialog):
         layout.addLayout(btn_container)
 
     def load_banner(self):
-        path = Path(__file__).resolve().parent.parent / "assets" / "Ayo.png"
+        root_path = Path(__file__).resolve().parent.parent
+        path = root_path / "assets" / "Ayo.png"
         if path.exists():
             pix = QPixmap(str(path))
             self.banner.setPixmap(pix.scaled(450, 250, Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation))

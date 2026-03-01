@@ -1,6 +1,19 @@
-from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
-                             QComboBox, QPushButton)
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (
+    QComboBox,
+    QDialog,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QVBoxLayout,
+)
+
+from core.app_config import (
+    DEFAULT_LANGUAGE,
+    DEFAULT_THEME,
+    LANGUAGES_DATA,
+    LEGACY_THEME_MAP,
+    THEME_OPTIONS,
+)
 from .info_window import InfoWindow
 
 class SettingsWindow(QDialog):
@@ -21,16 +34,9 @@ class SettingsWindow(QDialog):
         layout.addWidget(QLabel(self.tr.get("lbl_lang")))
         self.lang_combo = QComboBox()
         
-        # Lista języków z flagami (Unicode)
-        languages = [
-            ("Polski", "🇵🇱"), ("English", "🇬🇧"), ("Українська", "🇺🇦"),
-            ("Latviešu", "🇱🇻"), ("Lietuvių", "🇱🇹"), ("Eesti", "🇪🇪"),
-            ("Português", "🇵🇹"), ("Čeština", "🇨🇿"), ("Slovenščina", "🇸🇮"),
-            ("ქართული", "🇬🇪")
-        ]
-        
-        current_lang = self.config.get("language", "Polski")
-        for lang_name, flag in languages:
+        current_lang = self.config.get("language", DEFAULT_LANGUAGE)
+        # Generowanie listy dynamicznie z jednego źródła prawdy
+        for lang_name, _code, flag in LANGUAGES_DATA:
             # Wyświetlamy flagę i nazwę, ale w 'userData' trzymamy czystą nazwę dla configu
             self.lang_combo.addItem(f"{flag}  {lang_name}", userData=lang_name)
             
@@ -43,13 +49,23 @@ class SettingsWindow(QDialog):
         # Motyw
         layout.addWidget(QLabel(self.tr.get("lbl_theme")))
         self.theme_combo = QComboBox()
-        self.theme_combo.addItems(["Systemowy", "Ciemny", "Jasny", "Relaksacyjny"])
-        self.theme_combo.setCurrentText(self.config.get("theme", "Systemowy"))
+        
+        for theme_code, theme_key in THEME_OPTIONS:
+            self.theme_combo.addItem(self.tr.get(theme_key), userData=theme_code)
+
+        # Pobieramy obecny motyw i mapujemy stare nazwy na nowe kody (kompatybilność)
+        current_theme = self.config.get("theme", DEFAULT_THEME)
+        current_theme = LEGACY_THEME_MAP.get(current_theme, current_theme)
+
+        index = self.theme_combo.findData(current_theme)
+        if index >= 0:
+            self.theme_combo.setCurrentIndex(index)
+            
         layout.addWidget(self.theme_combo)
 
         # Przycisk Info
         layout.addSpacing(5)
-        self.btn_info = QPushButton("Info")
+        self.btn_info = QPushButton(self.tr.get("btn_info"))
         self.btn_info.clicked.connect(self.show_info)
         layout.addWidget(self.btn_info)
 
@@ -70,7 +86,7 @@ class SettingsWindow(QDialog):
     def save_and_close(self):
         self.config.set("language", self.lang_combo.currentData())
         if self.parent() and hasattr(self.parent(), "apply_theme"):
-            self.parent().apply_theme(self.theme_combo.currentText())
+            self.parent().apply_theme(self.theme_combo.currentData())
         self.accept()
 
     def show_info(self):
