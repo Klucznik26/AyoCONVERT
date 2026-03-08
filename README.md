@@ -1,170 +1,175 @@
-# AyoCONVERT 1.3 – Intelligent Batch Image Converter 🚀🖼️
+# AyoCONVERT 1.5.0 - Intelligent Batch Image Converter 🖼️
 
-![Version](https://img.shields.io/badge/version-1.3-blue)
-![Python](https://img.shields.io/badge/python-3.10+-green)
+AyoCONVERT is a fast and lightweight desktop tool for batch image conversion with a modern Qt interface, multilingual support, and theme-aware workflow.
 
-**AyoCONVERT** is a lightweight, modular image conversion tool built with Python and PySide6.
+Built for creators and power users who need safe, local, and repeatable image conversion without cloud dependency.
 
-Designed for creators who need fast, localized, and safe batch processing on Linux distributions such as **Fedora** and **OpenSUSE**.
+Part of the Ayo Ecosystem.
 
-Part of the **Ayo Ecosystem**.
-
-## 🎯 Philosophy
-
-AyoCONVERT focuses on clarity, safety, and fast local processing without cloud dependency.
-
----
-
-## 📸 Program Preview
+## 📸 Screenshots
 
 ### Main Interface Themes
 
-| Dark Theme | Light Theme | Creative Theme | Relax Theme | System Theme |
-|:--:|:--:|:--:|:--:|:--:|
-| ![Dark](screenshots/main_view_dark.png) | ![Light](screenshots/main_view_light.png) | ![Creative](screenshots/main_view_creative.png) | ![Relax](screenshots/main_view_relax.png) | ![System](screenshots/main_view_system.png) |
+| Dark | Light | Creative | Relax | System | Arctic |
+|---|---|---|---|---|---|
+| [![Dark](screenshots/main_view_dark.png)](screenshots/main_view_dark.png) | [![Light](screenshots/main_view_light.png)](screenshots/main_view_light.png) | [![Creative](screenshots/main_view_creative.png)](screenshots/main_view_creative.png) | [![Relax](screenshots/main_view_relax.png)](screenshots/main_view_relax.png) | [![System](screenshots/main_view_system.png)](screenshots/main_view_system.png) | [![Arctic](screenshots/main_view_arctic.png)](screenshots/main_view_arctic.png) |
 
 ### Functional Views
 
-| Theme Selection | Language Selection |
-|:--:|:--:|
-| ![Theme Menu](screenshots/theme_selection_menu.png) | ![Language Menu](screenshots/language_selection_menu.png) |
+| Language Selection | Theme Selection |
+|---|---|
+| <a href="screenshots/language_selection_menu.png"><img src="screenshots/language_selection_menu.png" width="350"></a> | <a href="screenshots/language_selection_theme.png"><img src="screenshots/language_selection_theme.png" width="350"></a> |
 
----
+## 🆕 What’s New in 1.5.0
 
-## 🆕 What’s New in 1.3
+## ✅ Full Implemented Changes (Up to 1.5.0)
 
-### 🎴 Visual Queue System (Image Fan)
+- application version unified to `1.5.0` across UI and i18n (`info_name_conv`)
+- UI refactor: large window module split into smaller files (`gui/main_window.py`, `gui/main_window_layout.py`)
+- language chooser rebuilt to match AyoARCHI behavior:
+- flag-based tiles
+- hover label with native name + localized name in current UI language
+- immediate apply on click
+- theme chooser rebuilt to match AyoARCHI behavior:
+- icon grid with hover label
+- immediate theme apply on click
+- narrow left icon panel aligned with AyoARCHI style (rounded glass, hover behavior, icon sizing)
+- top logo icon now opens About/Info dialog directly (same interaction model as AyoARCHI)
+- fan/count panel behavior improved:
+- refined placement to avoid overlap with drop area
+- file list visibility logic updated (shown only for multiple files)
+- file queue list under `Pliki:` now fully wired (real model-backed content)
+- scrollbar styling added per theme for file list area
+- duplicate/legacy empty files removed and project cleaned up
+- internationalization expanded and corrected:
+- language set expanded to **31 languages**
+- added: Turkish, Serbian, Slovenian, Croatian, Albanian, Maltese, Catalan
+- About dialog content translated in all active languages
+- language-name keys (`lang_*`) completed so localized hover names work consistently
+- output format system expanded and hardened:
+- added formats to workflow: GIF, AVIF, ICO
+- HEIC output shown only when supported by local Pillow build
+- SVG kept as input-only (not used as output target)
+- converter now validates writer support before conversion and returns clear messages
 
-AyoCONVERT now features a dynamic **Image Fan** in the top-right corner.
+### 🌍 Internationalization
 
-✔ **Visual Feedback**  
-When you drop multiple files, they are visually stacked as a fan of cards, giving you immediate confirmation of the queue status.
+AyoCONVERT uses JSON-based translations in:
 
-✔ **Dynamic Animation**  
-The interface reacts fluidly to added content, ensuring the workspace remains clean and organized.
+`i18n/<language>.json`
 
----
+Benefits:
 
-### 🧠 Smart Logic Improvements
+- easy language maintenance
+- transparent key-level updates
+- safe fallback behavior
 
-**Smart Format Lockout**  
-The application automatically disables the source format in the target selection list.
-*Example: If you load a PNG file, the PNG option in the dropdown is disabled to prevent redundant conversion.*
+### 🌐 Supported Languages
 
-**Automated Safety Naming**  
-Converted files are automatically saved with an `_AC` suffix to protect your original files from being overwritten.
+AyoCONVERT supports 31 interface languages:
 
----
-
-### 🌍 Extended Localization Support
-
-Version 1.3 brings a huge update to localization. We now support **17 languages**:
-
-- 🇮🇹 Italian (New)
-- 🇫🇷 French (New)
-- 🇪🇸 Spanish (New)
-- 🇷🇴 Romanian (New)
-- 🇬🇷 Greek (New)
-- 🇳🇱 Dutch (New)
-- 🇮🇸 Icelandic (New)
-
-The internal `Translator` engine has been optimized to handle fallback to English seamlessly if a translation key is missing.
-
----
+| | | |
+|---|---|---|
+| 🇵🇱 Polish | 🇬🇧 English | 🇧🇬 Bulgarian |
+| 🇨🇿 Czech | 🇩🇰 Danish | 🇩🇪 German |
+| 🇪🇸 Spanish | 🇪🇪 Estonian | 🇫🇮 Finnish |
+| 🇫🇷 French | 🇭🇺 Hungarian | 🇮🇸 Icelandic |
+| 🇮🇹 Italian | 🇱🇹 Lithuanian | 🇱🇻 Latvian |
+| 🇳🇱 Dutch | 🇳🇴 Norwegian | 🇵🇹 Portuguese |
+| 🇷🇴 Romanian | 🇸🇰 Slovak | 🇸🇪 Swedish |
+| 🇺🇦 Ukrainian | 🇬🇷 Greek | 🇬🇪 Georgian |
+| 🇹🇷 Turkish | 🇷🇸 Serbian | 🇸🇮 Slovenian |
+| 🇪🇸 Catalan | 🇭🇷 Croatian | 🇦🇱 Albanian |
+| 🇲🇹 Maltese |  |  |
 
 ## 🚀 Key Features
 
-### ⚡ High-Performance Workflow
+### ⚡ Batch Conversion Workflow
 
-* **Batch Conversion**: Process hundreds of files simultaneously.
-* **Drag & Drop**: Intuitive file adding by dragging images or folders directly into the main area.
-* **Sequential Logic**: The interface guides you: Select Files → Select Directory → Execute.
+- drag & drop files or folders
+- multi-file queue with visual fan preview
+- source-format lockout in target dropdown
+- safe output naming with `_AC` suffix
 
-### 🖼 Supported Formats
+### 🎨 Theme System
 
-Handles the most popular image formats with **Pillow (PIL)** precision:
-* **PNG, JPG, WEBP, BMP, TIFF**
+Available themes:
 
-### 📖 How to Use
+- Dark
+- Light
+- Creative
+- Relax
+- Arctic
+- System
 
-1. **Drag & Drop** images or folders into the application window.
-2. **Select** the target format (e.g., JPG, PNG).
-3. **Choose** a destination folder (optional, defaults to source).
-4. Click **Execute**.
+Features:
 
----
+- dynamic runtime switching
+- consistent panel/icon styling
+- themed dialogs and list controls
 
-## 🎨 Themes
+### 🧾 About Dialog
 
-Customize your experience with 5 distinct visual modes:
+- opens from top logo icon in narrow panel
+- localized title/content/button (`Back` / `Powrót` / etc.)
+- visually consistent with current theme
 
-- **Dark Theme**: High contrast, professional look.
-- **Light Theme**: Clean and bright.
-- **Relax Theme**: Optimized for visual comfort during long sessions.
-- **Creative Theme**: Inspiring color palette.
-- **System Theme**: Matches your OS native look.
+## 🖼️ Image Formats
 
-## 🌍 Supported Languages
+### Input formats
 
-The application features a custom i18n engine with full support for:
+- PNG
+- JPG / JPEG
+- WEBP
+- BMP
+- TIFF
+- GIF
+- AVIF
+- HEIC / HEIF
+- SVG
+- ICO
 
-- 🇵🇱 Polish
-- 🇬🇧 English
-- 🇺🇦 Ukrainian
-- 🇱🇻 Latvian
-- 🇱🇹 Lithuanian
-- 🇪🇪 Estonian
-- 🇵🇹 Portuguese
-- 🇨🇿 Czech
-- 🇸🇮 Slovenian
-- 🇬🇪 Georgian
-- 🇪🇸 Spanish
-- 🇫🇷 French
-- 🇮🇹 Italian
-- 🇷🇴 Romanian
-- 🇬🇷 Greek
-- 🇳🇱 Dutch
-- 🇮🇸 Icelandic
+### Output formats
 
----
+- PNG
+- JPG / JPEG
+- WEBP
+- BMP
+- TIFF
+- GIF
+- AVIF
+- ICO
+- HEIC (only if local Pillow build supports HEIF writer)
 
 ## 🏗️ Architecture
 
-- **Modular GUI**: Separated logic (Controller) and View (MainWindow).
-- **Custom Qt Translator**: Hybrid translation system combining JSON files with Qt's native engine.
-- **ConfigManager**: Persistent settings for themes, languages, and paths.
-- **Robust Error Handling**: Logging system for easier debugging.
+Core structure:
 
----
+- `AyoConvert.py` (main launcher)
+- `main.py` (alternate entrypoint)
+- `ui_main.py` (MainWindow export)
+- `gui/` (UI components)
+- `core/` (controller, converter, config, translator)
+- `themes/` (QSS themes)
+- `i18n/` (JSON translations)
+- `assets/` (branding and UI assets)
 
 ## 🛠 Technology
 
-- **Python 3.10+**
-- **PySide6** (Qt for Python)
-- **Pillow** (Image Processing)
-- Developed on Linux (Fedora / openSUSE)
-
----
+- Python 3.10+
+- PySide6 (Qt for Python)
+- Pillow (PIL)
 
 ## 🌌 Ayo Ecosystem
 
-- **AyoUP** – Intelligent Multi-Model Image Upscaler
-- **AyoARCH** – ZIP image viewer
-- **AyoSORT** – Intelligent image categorization
+- AyoUP - intelligent image upscaler
+- AyoARCHI - archive image viewer
+- AyoSORT - intelligent image categorization
 
-More projects:  
-👉 klucznik26.github.io/AyoWWW/
+More projects:
 
----
+👉 https://klucznik26.github.io/AyoWWW/
 
-## 📥 Installation
+## 📜 License
 
-```bash
-git clone https://github.com/Klucznik26/AyoCONVERT.git
-cd AyoCONVERT
-pip install -r requirements.txt
-python AyoConvert.py
-```
-
----
-© 2026 Marek.
+MIT License

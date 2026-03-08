@@ -3,12 +3,14 @@ from pathlib import Path
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
 from PySide6.QtGui import QPainter, QPixmap, QColor, QPen
 from PySide6.QtCore import Qt
+from core.app_config import SUPPORTED_IMAGE_EXTENSIONS
 
 class FanCanvas(QWidget):
     """Widget odpowiedzialny wyłącznie za rysowanie wachlarza kart."""
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setFixedSize(250, 180) # Rozmiar obszaru wachlarza
+        self.setFixedSize(300, 180)  # +50px szerokości na przesunięcie w prawo
+        self._fan_shift_px = 50
         self.images = [] # Lista krotek (QPixmap, kąt_obrotu)
 
     def update_cards(self, images_data):
@@ -25,7 +27,8 @@ class FanCanvas(QWidget):
         painter.setRenderHint(QPainter.SmoothPixmapTransform)
 
         # Środek wachlarza (punkt zaczepienia na dole widgetu)
-        center_x = self.width() // 2
+        # Realne przesunięcie wachlarza o 50px w prawo względem pierwotnej pozycji.
+        center_x = (self.width() // 2) + (self._fan_shift_px // 2)
         center_y = self.height() - 20
 
         for pixmap, angle in self.images:
@@ -49,6 +52,7 @@ class ImageFan(QWidget):
     def __init__(self, translator, parent=None):
         super().__init__(parent)
         self.translator = translator
+        self.setFixedWidth(300)  # +50px przestrzeni, żeby przesunąć zawartość w prawo
         
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -57,10 +61,12 @@ class ImageFan(QWidget):
         self.canvas = FanCanvas()
         self.lbl_count = QLabel()
         self.lbl_count.setAlignment(Qt.AlignCenter)
+        self.lbl_count.setFixedWidth(168)  # 20% węższe względem poprzednich 210px
+        self.lbl_count.setWordWrap(True)
         self.lbl_count.setStyleSheet("font-weight: bold; font-size: 11px; color: #d4a373;")
         
-        layout.addWidget(self.canvas)
-        layout.addWidget(self.lbl_count)
+        layout.addWidget(self.canvas, 0, Qt.AlignRight)
+        layout.addWidget(self.lbl_count, 0, Qt.AlignRight)
         
         self.setVisible(False) # Domyślnie ukryty
 
@@ -69,8 +75,7 @@ class ImageFan(QWidget):
         Przyjmuje listę ścieżek, losuje do 5 sztuk i przygotowuje miniatury.
         """
         # Filtrujemy tylko obrazy (na wypadek gdyby na liście były inne pliki)
-        valid_exts = {'.png', '.jpg', '.jpeg', '.bmp', '.webp', '.tiff'}
-        image_paths = [p for p in file_paths if Path(p).suffix.lower() in valid_exts]
+        image_paths = [p for p in file_paths if Path(p).suffix.lower() in SUPPORTED_IMAGE_EXTENSIONS]
 
         # Warunek: Pokaż tylko jeśli wybrano więcej niż 1 plik
         if len(image_paths) <= 1:

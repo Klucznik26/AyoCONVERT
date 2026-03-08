@@ -12,7 +12,6 @@ from core.app_config import (
     DEFAULT_THEME,
     LANGUAGES_DATA,
     LEGACY_THEME_MAP,
-    THEME_OPTIONS,
 )
 from .info_window import InfoWindow
 
@@ -50,7 +49,17 @@ class SettingsWindow(QDialog):
         layout.addWidget(QLabel(self.tr.get("lbl_theme")))
         self.theme_combo = QComboBox()
         
-        for theme_code, theme_key in THEME_OPTIONS:
+        # Definicja dostępnych motywów
+        theme_options = [
+            ("system", "theme_system"),
+            ("dark", "theme_dark"),
+            ("light", "theme_light"),
+            ("relax", "theme_relax"),
+            ("creative", "theme_creative"),
+            ("arctic", "theme_arctic"),
+        ]
+        
+        for theme_code, theme_key in theme_options:
             self.theme_combo.addItem(self.tr.get(theme_key), userData=theme_code)
 
         # Pobieramy obecny motyw i mapujemy stare nazwy na nowe kody (kompatybilność)

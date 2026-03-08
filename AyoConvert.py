@@ -1,7 +1,8 @@
+#!/usr/bin/env python3
 import logging
 import sys
 
-from PySide6.QtCore import QTranslator
+from PySide6.QtCore import QTranslator, qInstallMessageHandler
 from PySide6.QtWidgets import QApplication
 
 from core.app_config import DEFAULT_LANGUAGE, LANG_MAP
@@ -9,11 +10,19 @@ from core.controller import MainController
 from core.converter import ImageConverter
 from core.manager import ConfigManager
 from core.translator import ensure_translation_files
-from gui.main_window import MainWindow
+from ui_main import MainWindow
 from gui.qt_i18n import update_qt_translator
+
+
+def _qt_message_filter(_msg_type, _context, message):
+    # Wyciszenie znanego ostrzeżenia Qt, które nie wpływa na działanie aplikacji.
+    if "QString::arg: 2 argument(s) missing in" in message:
+        return
+    print(message)
 
 def main():
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+    qInstallMessageHandler(_qt_message_filter)
     
     # Sprawdzenie i ewentualne utworzenie brakujących plików językowych
     ensure_translation_files()

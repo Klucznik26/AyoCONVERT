@@ -31,12 +31,14 @@ class AyoQtTranslator(QTranslator):
         self.translations = translations_dict
 
     def translate(self, context, source_text, disambiguation=None, n=-1):
+        if not source_text:
+            return ""
+
         qt_map = {
             "Name": "qt_col_name",
             "Size": "qt_col_size",
             "Type": "qt_col_type",
             "Date Modified": "qt_col_date",
-            "Date": "qt_col_date",
         }
 
         if source_text in qt_map:

@@ -1,4 +1,8 @@
 from pathlib import Path
+try:
+    from PIL import Image
+except Exception:  # Pillow może nie być dostępny w środowisku narzędziowym
+    Image = None
 
 # --- Ścieżki aplikacji ---
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -19,26 +23,91 @@ DEFAULT_SETTINGS = {
     "output_suffix": DEFAULT_OUTPUT_SUFFIX,
 }
 
+TARGET_FORMAT_OPTIONS = [
+    "PNG",
+    "JPG",
+    "WEBP",
+    "BMP",
+    "TIFF",
+    "GIF",
+    "AVIF",
+    "HEIC",
+    "ICO",
+]
+
+FORMAT_MAP_FOR_SAVE = {
+    "JPG": "JPEG",
+    "HEIC": "HEIF",
+}
+
+SUPPORTED_IMAGE_EXTENSIONS = {
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".bmp",
+    ".webp",
+    ".tiff",
+    ".gif",
+    ".avif",
+    ".heic",
+    ".heif",
+    ".svg",
+    ".ico",
+}
+
+
+def get_available_target_formats():
+    """
+    Zwraca formaty docelowe wspierane przez aktualną instalację Pillow.
+    SVG pozostaje tylko formatem wejściowym (Pillow nie zapisuje do SVG).
+    """
+    if Image is None:
+        return [fmt for fmt in TARGET_FORMAT_OPTIONS if fmt not in {"SVG", "HEIC"}]
+
+    Image.init()
+    available = []
+    for fmt in TARGET_FORMAT_OPTIONS:
+        if fmt == "SVG":
+            continue
+        pil_fmt = FORMAT_MAP_FOR_SAVE.get(fmt, fmt)
+        if pil_fmt in Image.SAVE:
+            available.append(fmt)
+    return available
+
 # --- Języki interfejsu ---
 # (Nazwa wyświetlana, Kod pliku/Qt, Flaga)
 LANGUAGES_DATA = [
     ("Polski", "pl", "🇵🇱"),
-    ("English", "en", "🇬🇧"),
-    ("Українська", "uk", "🇺🇦"),
-    ("Latviešu", "lv", "🇱🇻"),
-    ("Lietuvių", "lt", "🇱🇹"),
-    ("Eesti", "et", "🇪🇪"),
-    ("Português", "pt", "🇵🇹"),
+    ("English", "en", "🇺🇸"),
+    ("Български", "bg", "🇧🇬"),
     ("Čeština", "cs", "🇨🇿"),
-    ("Slovenščina", "sl", "🇸🇮"),
-    ("ქართული", "ka", "🇬🇪"),
+    ("Dansk", "da", "🇩🇰"),
+    ("Deutsch", "de", "🇩🇪"),
     ("Español", "es", "🇪🇸"),
+    ("Eesti", "et", "🇪🇪"),
+    ("Suomi", "fi", "🇫🇮"),
     ("Français", "fr", "🇫🇷"),
-    ("Italiano", "it", "🇮🇹"),
-    ("Română", "ro", "🇷🇴"),
-    ("Ελληνικά", "el", "🇬🇷"),
-    ("Nederlands", "nl", "🇳🇱"),
+    ("Magyar", "hu", "🇭🇺"),
     ("Íslenska", "is", "🇮🇸"),
+    ("Italiano", "it", "🇮🇹"),
+    ("Lietuvių", "lt", "🇱🇹"),
+    ("Latviešu", "lv", "🇱🇻"),
+    ("Nederlands", "nl", "🇳🇱"),
+    ("Norsk", "no", "🇳🇴"),
+    ("Português", "pt", "🇵🇹"),
+    ("Română", "ro", "🇷🇴"),
+    ("Slovenčina", "sk", "🇸🇰"),
+    ("Svenska", "sv", "🇸🇪"),
+    ("Українська", "uk", "🇺🇦"),
+    ("Ελληνικά", "el", "🇬🇷"),
+    ("ქართული", "ka", "🇬🇪"),
+    ("Türkçe", "tr", "🇹🇷"),
+    ("Српски", "sr", "🇷🇸"),
+    ("Slovenščina", "sl", "🇸🇮"),
+    ("Català", "ca", "🇪🇸"),
+    ("Hrvatski", "hr", "🇭🇷"),
+    ("Shqip", "sq", "🇦🇱"),
+    ("Malti", "mt", "🇲🇹"),
 ]
 
 LANG_MAP = {name: code for name, code, _flag in LANGUAGES_DATA}

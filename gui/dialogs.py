@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from PySide6.QtWidgets import QFileDialog
+from core.app_config import SUPPORTED_IMAGE_EXTENSIONS
 
 def _prepare_custom_dialog(parent, translator, title, directory, file_filter=None):
     """Pomocnicza funkcja konfigurująca styl i tłumaczenia dialogu."""
@@ -38,7 +39,10 @@ def open_files_dialog(parent, translator, start_dir):
     title = translator.get("btn_open")
     img_label = translator.get("dlg_filter_images")
     all_label = translator.get("dlg_filter_all")
-    file_filter = f"{img_label} (*.png *.jpg *.jpeg *.bmp *.webp *.tiff);;{all_label} (*.*)"
+    file_filter = (
+        f"{img_label} (*.png *.jpg *.jpeg *.bmp *.webp *.tiff *.gif *.avif *.heic *.heif *.svg *.ico);;"
+        f"{all_label} (*.*)"
+    )
     
     dialog = _prepare_custom_dialog(parent, translator, title, start_dir, file_filter)
     dialog.setFileMode(QFileDialog.FileMode.ExistingFiles)
@@ -59,9 +63,8 @@ def open_directory_scan(parent, translator, start_dir):
         selected = dialog.selectedFiles()
         if selected:
             folder = Path(selected[0])
-            valid_exts = {'.png', '.jpg', '.jpeg', '.bmp', '.webp', '.tiff'}
             try:
-                return [str(p) for p in folder.iterdir() if p.is_file() and p.suffix.lower() in valid_exts]
+                return [str(p) for p in folder.iterdir() if p.is_file() and p.suffix.lower() in SUPPORTED_IMAGE_EXTENSIONS]
             except Exception:
                 return []
     return None

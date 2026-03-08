@@ -35,7 +35,10 @@ class MainController:
 
         # 2. Logika blokowania formatów (np. nie konwertuj JPG na JPG)
         source_ext = Path(file_paths[0]).suffix[1:].upper()
-        if source_ext == "JPEG": source_ext = "JPG"
+        if source_ext == "JPEG":
+            source_ext = "JPG"
+        elif source_ext in ("HEIF", "HEIC"):
+            source_ext = "HEIC"
         self.view.update_format_availability(source_ext)
 
         # 3. Sprawdź czy można uruchomić
