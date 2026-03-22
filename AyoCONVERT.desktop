@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=AyoCONVERT
+Exec=/home/marek/AyoCONVERT/run.sh
+Icon=ayoconvert
+Type=Application
+Terminal=false
+

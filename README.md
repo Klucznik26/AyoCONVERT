@@ -1,17 +1,10 @@
-# AyoCONVERT 1.3 – Intelligent Batch Image Converter 🚀🖼️
+# AyoCONVERT 1.7.0 – Intelligent Batch Image Converter 🚀🖼️
 
-![Version](https://img.shields.io/badge/version-1.3-blue)
-![Python](https://img.shields.io/badge/python-3.10+-green)
+AyoCONVERT is a fast and lightweight desktop tool for batch image conversion with a modern Qt interface, vast multilingual support, and a beautifully theme-aware workflow.
 
-**AyoCONVERT** is a lightweight, modular image conversion tool built with Python and PySide6.
-
-Designed for creators who need fast, localized, and safe batch processing on Linux distributions such as **Fedora** and **OpenSUSE**.
+Designed for creators and power users who need safe, local, and repeatable image conversion without cloud dependency, while maintaining the highest detail fidelity.
 
 Part of the **Ayo Ecosystem**.
-
-## 🎯 Philosophy
-
-AyoCONVERT focuses on clarity, safety, and fast local processing without cloud dependency.
 
 ---
 
@@ -19,152 +12,181 @@ AyoCONVERT focuses on clarity, safety, and fast local processing without cloud d
 
 ### Main Interface Themes
 
-| Dark Theme | Light Theme | Creative Theme | Relax Theme | System Theme |
-|:--:|:--:|:--:|:--:|:--:|
-| ![Dark](screenshots/main_view_dark.png) | ![Light](screenshots/main_view_light.png) | ![Creative](screenshots/main_view_creative.png) | ![Relax](screenshots/main_view_relax.png) | ![System](screenshots/main_view_system.png) |
+| Dark Theme | Light Theme | Creative Theme | Relax Theme | Arctic Theme | System Theme |
+|:--:|:--:|:--:|:--:|:--:|:--:|
+| <img src="screenshots/dark_theme.png" width="180"> | <img src="screenshots/light_theme.png" width="180"> | <img src="screenshots/creative_theme.png" width="180"> | <img src="screenshots/recreational_theme.png" width="180"> | <img src="screenshots/arctic_theme.png" width="180"> | <img src="screenshots/system_theme.png" width="180"> |
 
 ### Functional Views
 
-| Theme Selection | Language Selection |
+| Language Selection | Theme Selection |
 |:--:|:--:|
-| ![Theme Menu](screenshots/theme_selection_menu.png) | ![Language Menu](screenshots/language_selection_menu.png) |
+| <img src="screenshots/language_selection.png" width="400"> | <img src="screenshots/select_theme.png" width="400"> |
 
 ---
 
-## 🆕 What’s New in 1.3
+## 🆕 What’s New in 1.7.0
 
-### 🎴 Visual Queue System (Image Fan)
+### 🎨 Redesigned "Ayo Dark" Theme & UI Enhancements
+- **Deep Emerald Aesthetics:** The Dark Theme has been meticulously mapped pixel-by-pixel, featuring deep black-green backgrounds, custom 14px rounded borders, and beautiful emerald neon accents.
+- **Interactive Sidebar:** Integrated custom graphical `.png` icons with real-time alpha-channel cropping. Icons gracefully expand by 10% and emit a glowing emerald neon drop-shadow on hover.
+- **Dynamic Image Preview:** Clicking (or navigating with keyboard arrows) on any file in the right-side queue list now instantly updates the central Drop Area preview.
+- **Advanced Qt Animations:** Replaced old UI updaters with native `QPropertyAnimation` for butter-smooth visual feedback (e.g., dropping images and dynamic -90 degree discard rotations).
 
-AyoCONVERT now features a dynamic **Image Fan** in the top-right corner.
-
-✔ **Visual Feedback**  
-When you drop multiple files, they are visually stacked as a fan of cards, giving you immediate confirmation of the queue status.
-
-✔ **Dynamic Animation**  
-The interface reacts fluidly to added content, ensuring the workspace remains clean and organized.
-
----
-
-### 🧠 Smart Logic Improvements
-
-**Smart Format Lockout**  
-The application automatically disables the source format in the target selection list.
-*Example: If you load a PNG file, the PNG option in the dropdown is disabled to prevent redundant conversion.*
-
-**Automated Safety Naming**  
-Converted files are automatically saved with an `_AC` suffix to protect your original files from being overwritten.
+### 🌍 Massive Localization (i18n) Overhaul
+- **43 Languages Fully Supported:** Every single translation file has been thoroughly verified, updated, and 100% completed. The language grid now cleanly displays in 7 columns.
+- **Standardized ISO Codes:** Completely refactored language identification to strictly use international ISO 639-1 standard codes (e.g., `uk`, `cs`, `sl`, `ka`, `et`), removing old legacy mappings.
+- **Perfect UI Sync:** Fixed missing key translations ("Apply", "Arctic") across all JSON modules, ensuring a fully unified experience for global users.
 
 ---
 
-### 🌍 Extended Localization Support
+## ⏪ Previous Updates (1.5)
 
-Version 1.3 brings a huge update to localization. We now support **17 languages**:
+### 🧠 Format Expansion & Hardening
 
-- 🇮🇹 Italian (New)
-- 🇫🇷 French (New)
-- 🇪🇸 Spanish (New)
-- 🇷🇴 Romanian (New)
-- 🇬🇷 Greek (New)
-- 🇳🇱 Dutch (New)
-- 🇮🇸 Icelandic (New)
+AyoCONVERT is no longer limited to basic formats.
 
-The internal `Translator` engine has been optimized to handle fallback to English seamlessly if a translation key is missing.
+✔ **Extended Format Support**  
+Added robust output formats to the workflow, including GIF, AVIF, and ICO. SVG is smartly kept as input-only.
+
+📦 **Intelligent Pillow Validation**  
+The converter now validates writer support dynamically. For instance, HEIC output is displayed *only* when supported by your local Pillow build.
+
+🔄 **Theme & Language Choosers Rebuilt**  
+The selection windows were refactored to match the Ayo Ecosystem behavior, providing instant live-previews on click and beautiful grid layouts with glassmorphism effects.
 
 ---
 
 ## 🚀 Key Features
 
-### ⚡ High-Performance Workflow
+### 🖼️ Advanced Batch Processing
 
-* **Batch Conversion**: Process hundreds of files simultaneously.
-* **Drag & Drop**: Intuitive file adding by dragging images or folders directly into the main area.
-* **Sequential Logic**: The interface guides you: Select Files → Select Directory → Execute.
+AyoCONVERT supports converting between numerous image types simultaneously.
 
-### 🖼 Supported Formats
-
-Handles the most popular image formats with **Pillow (PIL)** precision:
-* **PNG, JPG, WEBP, BMP, TIFF**
-
-### 📖 How to Use
-
-1. **Drag & Drop** images or folders into the application window.
-2. **Select** the target format (e.g., JPG, PNG).
-3. **Choose** a destination folder (optional, defaults to source).
-4. Click **Execute**.
+Perfect for:
+- photographers dealing with HEIC/RAW-like formats
+- web developers (AVIF, WEBP)
+- icon designers (ICO)
+- large batch workflows
 
 ---
 
-## 🎨 Themes
+## 📂 Flexible Input & Output Workflow
 
-Customize your experience with 5 distinct visual modes:
-
-- **Dark Theme**: High contrast, professional look.
-- **Light Theme**: Clean and bright.
-- **Relax Theme**: Optimized for visual comfort during long sessions.
-- **Creative Theme**: Inspiring color palette.
-- **System Theme**: Matches your OS native look.
-
-## 🌍 Supported Languages
-
-The application features a custom i18n engine with full support for:
-
-- 🇵🇱 Polish
-- 🇬🇧 English
-- 🇺🇦 Ukrainian
-- 🇱🇻 Latvian
-- 🇱🇹 Lithuanian
-- 🇪🇪 Estonian
-- 🇵🇹 Portuguese
-- 🇨🇿 Czech
-- 🇸🇮 Slovenian
-- 🇬🇪 Georgian
-- 🇪🇸 Spanish
-- 🇫🇷 French
-- 🇮🇹 Italian
-- 🇷🇴 Romanian
-- 🇬🇷 Greek
-- 🇳🇱 Dutch
-- 🇮🇸 Icelandic
+- Multi-file selection
+- Folder loading
+- Drag & Drop support (files & directories)
+- Smart source-format lockout in target dropdown
+- Safe output naming with customizable `_AC` suffix
 
 ---
 
-## 🏗️ Architecture
+## ⚡ Modern Smart Interface
 
-- **Modular GUI**: Separated logic (Controller) and View (MainWindow).
-- **Custom Qt Translator**: Hybrid translation system combining JSON files with Qt's native engine.
-- **ConfigManager**: Persistent settings for themes, languages, and paths.
-- **Robust Error Handling**: Logging system for easier debugging.
+🎴 **Fan Preview System**  
+Displays a dynamic fan of thumbnails when multiple files are queued.
+
+▶️ **Smart Run Button**  
+Transforms into a live progress indicator during processing.
+
+🧠 **Intelligent UI Behavior**
+- Auto-clearing interface after completion
+- Locking controls during processing
+- Context-aware file counter and error handling
+
+---
+
+### 🎨 Theme System
+
+- Dark Theme
+- Light Theme
+- Creative Theme
+- Relax Theme
+- Arctic Theme
+- System Theme
+
+All dialogs use non-native Qt rendering for full styling and localization control.
+
+---
+
+## 🌍 Supported Languages (43)
+
+| | | | |
+|---|---|---|---|
+| 🇦🇱 Albanian | 🇳🇱 Dutch | 🇮🇪 Irish | 🇵🇹 Portuguese |
+| 🇦🇲 Armenian | 🇬🇧 English | 🇮🇹 Italian | 🇷🇴 Romanian |
+| 🇦🇿 Azerbaijani| 🇪🇪 Estonian | 🇯🇵 Japanese | 🇷🇸 Serbian |
+| 🇪🇸 Basque | 🇫🇮 Finnish | 🇰🇿 Kazakh | 🇸🇰 Slovak |
+| 🇧🇦 Bosnian | 🇫🇷 French | 🇱🇻 Latvian | 🇸🇮 Slovenian |
+| 🇧🇬 Bulgarian | 🇪🇸 Galician | 🇱🇹 Lithuanian | 🇪🇸 Spanish |
+| 🇦🇩 Catalan | 🇬🇪 Georgian | 🇱🇺 Luxembourgish | 🇰🇪 Swahili |
+| 🇫🇷 Corsican | 🇩🇪 German | 🇲🇰 Macedonian | 🇸🇪 Swedish |
+| 🇭🇷 Croatian | 🇬🇷 Greek | 🇲🇹 Maltese | 🇹🇷 Turkish |
+| 🇨🇿 Czech | 🇭🇺 Hungarian | 🇳🇴 Norwegian | 🇺🇦 Ukrainian |
+| 🇩🇰 Danish | 🇮🇸 Icelandic | 🇵🇱 Polish | |
+
+The application uses an internal JSON-based translation layer (`i18n/`) to ensure consistent localization across systems.
+
+---
+
+## �️ Architecture
+
+- Modular GUI structure
+- ThemeManager styling system (QSS injection)
+- Internal JSON translation layer (ISO 639-1)
+- `Pillow` (PIL) image processing engine
+- Non-native Qt dialogs
+- `pathlib`-based file handling
+- Clean event loop design
 
 ---
 
 ## 🛠 Technology
 
-- **Python 3.10+**
-- **PySide6** (Qt for Python)
-- **Pillow** (Image Processing)
+- Python 3.10+
+- PySide6 (Qt for Python)
+- Pillow (Python Imaging Library)
 - Developed on Linux (Fedora / openSUSE)
 
 ---
 
 ## 🌌 Ayo Ecosystem
 
-- **AyoUP** – Intelligent Multi-Model Image Upscaler
-- **AyoARCH** – ZIP image viewer
-- **AyoSORT** – Intelligent image categorization
+- **AyoARCHI** – ZIP image viewer
+- **AyoUP** – intelligent multi-model image upscaler
+- **AyoCONVERT** – file conversion tool
+- **AyoSORT** – intelligent image categorization
+- **AyoMONITOR** – system resource monitoring tool
+- **AyoHUB** *(Coming Soon)* – a unified interface designed to connect all Ayo applications together
+
+<br><img src="screenshots/early_version_of_AyoHUB.png" width="600">
 
 More projects:  
-👉 klucznik26.github.io/AyoWWW/
+👉 https://klucznik26.github.io/AyoWWW/
 
 ---
 
 ## 📥 Installation
 
+### 1️⃣ Clone repository
+
 ```bash
 git clone https://github.com/Klucznik26/AyoCONVERT.git
 cd AyoCONVERT
-pip install -r requirements.txt
+```
+
+### 2️⃣ Install dependencies
+
+```bash
+pip install PySide6 Pillow
+```
+
+### 3️⃣ Run application
+
+```bash
 python AyoConvert.py
 ```
 
 ---
-© 2026 Marek.
+
+👉 "Try AyoCONVERT now"  
+👉 "Drag, drop, and convert instantly"

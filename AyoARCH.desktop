@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=AyoARCH
+Exec=/usr/bin/python3 /home/marek/AyoARCH/AyoArch.py
+Icon=/home/marek/.local/share/icons/hicolor/1024x1024/apps/ayoarch.png
+Type=Application
+Terminal=false
